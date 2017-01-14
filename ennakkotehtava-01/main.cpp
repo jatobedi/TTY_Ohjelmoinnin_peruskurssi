@@ -1,9 +1,14 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int main()
 {
-    cout << "Hello World!" << endl;
-    return 0;
+    string sana = "";
+    cout << "Syota sana: ";
+    getline(cin, sana);
+
+    cout << "Syotetty sana on: " << sana << endl;
+
 }
