@@ -9,12 +9,23 @@
 #include <vector>
 #include <set>
 #include <iomanip>
+#include <algorithm>
 
 const double TUOTE_LOPPUNUT = 0.0;
 
 struct Tuote {
+    // Tuotteen nimen ja hinnan sisältävä tietorakenne.
         string tuotenimi;
         double hinta;
+
+    // Määrätään tuotteiden välinen suuruusjärjestys
+    // määräytymään tuotenimen perusteella
+    // .sort() algoritmia varten.
+
+        bool operator<(const Tuote& a)
+        {
+            return tuotenimi < a.tuotenimi;
+        }
     };
 
 using kaupat_type = map<string, vector<Tuote>>;

@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 

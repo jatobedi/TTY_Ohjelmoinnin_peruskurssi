@@ -2,6 +2,12 @@
 
 
 bool lue_tiedosto(ketjut_type& ketjut){
+    // Lukee tiedostosta "tuotetiedot.txt" rivit,
+    // pilkkoo ne Splitterillä ";"  merkin kohdalta ja
+    // tallentaa tiedot kaupoista tietorakenteeseen.
+    // ketjut ketjut_type: tietorakenne, johon tiedot tallenetaan.
+    // return bool: true, jos tiedoston avaus onnistuu false jos ei.
+
     ifstream tiedosto_olio("tuotetiedot.txt");
     if ( not tiedosto_olio ){
         return false;
@@ -63,12 +69,19 @@ bool lue_tiedosto(ketjut_type& ketjut){
 }
 
 void tulosta_kauppaketjut(ketjut_type ketjut){
+    // tulostaa kauppaketrjut.
+    // ketjut ketjut_type: tietorakenne, josta tiedot luetaan.
+
     for ( auto ketju : ketjut){
         cout << ketju.first << endl;
     }
 }
 
 void tulosta_myymalat(ketjut_type ketjut, string ketju){
+    // Tulostaa myymälät.
+    // ketjut ketjut_type: tietorakenne, josta tiedot luetaan.
+    // string ketju: ketju, jonka myymälät tulostetaan.
+
     ketjut_type::iterator iter = ketjut.find(ketju);
     for ( auto kauppa : iter->second ){
         cout << kauppa.first << endl;
@@ -83,6 +96,8 @@ void halvin(ketjut_type ketjut, string nimi){
     // tulostetaan, "ei kuulu valikoimiin" ja
     // jos loppu kaikkialta tulostetaan
     // "Tuote on tilapäisesti loppu kaikkialta."
+    // ketjut ketjut_type: tietorakenne, josta tiedot luetaan.
+    // string nimi: haettava tuote.
 
     bool tuote_loytyy = false;
     set<string> halvimmat_kaupat;
@@ -115,28 +130,32 @@ void halvin(ketjut_type ketjut, string nimi){
                  << halvin_hinta << " euroa" << endl;
             for ( auto kauppa: halvimmat_kaupat ){
                 cout << kauppa << endl;
-        }
+            }
         }
 
     }else{
             cout << "Tuote ei kuulu valikoimiin." << endl;
         }
-
     }
 
 void valikoima(ketjut_type ketjut, string ketju, string kauppa){
     // Etsii tietorakenteesta kaupan ja tulostaa
     // sen jokaisesta tuotteesta tuotenimen ja hinnan.
+    // ketjut ketjut_type: tietorakenne, josta tiedot luetaan.
+    // string ketju: ketju, jonka kauppaa haetaan.
+    // string kauppa: kauppa, jonka valikoima tulostetaan.
 
     ketjut_type::iterator iter = ketjut.find(ketju);
     kaupat_type::iterator iter2 = iter->second.find(kauppa);
+    sort (iter2->second.begin(), iter2->second.end());
     for ( auto tavara : iter2->second ){
         cout << tavara.tuotenimi << " ";
+
         if ( tavara.hinta == TUOTE_LOPPUNUT ){
             cout << "loppu" << endl;
         }else{
             cout << setprecision(2) << fixed << tavara.hinta
-                 << endl;
+                << endl;
         }
     }
 }
@@ -144,6 +163,7 @@ void valikoima(ketjut_type ketjut, string ketju, string kauppa){
 void tuotenimet(ketjut_type ketjut){
     // Kerää kaikkien kauppojen tuotenimet settiin
     // ja tulostaa ne yksitelleen.
+    // ketjut ketjut_type: tietorakenne, josta tiedot luetaan.
 
     set<string> tuotteet;
     for ( auto ketju : ketjut){
