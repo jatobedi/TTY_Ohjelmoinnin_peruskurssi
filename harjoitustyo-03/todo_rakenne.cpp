@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -17,6 +18,8 @@ Todo::Todo() {
 // ----- Uuden tehtavan lisääminen todo-listalle ------------------------------
 
 bool Todo::lisaa_tehtava(int kiireellisyys, const string& kuvaus) {
+
+    // virheen tarkistus.
     if ( kiireellisyys < MIN_KIIREELLISYYS
            or kiireellisyys > MAX_KIIREELLISYYS ) {
 
@@ -30,6 +33,28 @@ bool Todo::lisaa_tehtava(int kiireellisyys, const string& kuvaus) {
     todo.at(kiireellisyys).push_back(kuvaus);
 
     return true;
+}
+
+bool Todo::poista_tehtava(){
+    if ( todo.size() == 0 ){
+        return false;
+    }else{
+        for ( int i = 5; i > 0; --i){
+            if ( todo.find(i) != todo.end() ){
+
+                cout << "Suoritusvuorossa: " << todo.at(i).front() << endl;
+                todo.at(i).pop_front();
+                if ( todo.at(i).size() == 0 ){
+                    todo.erase(i);
+                }
+                return true;
+        }
+
+    }
+
+    return true;
+
+    }
 }
 
 

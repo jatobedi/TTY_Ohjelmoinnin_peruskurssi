@@ -22,10 +22,12 @@ using Todo_map = map<int, Tehtavalista>;
 
 
 class Todo {
+    
   public:
     Todo();
 
     bool lisaa_tehtava(int kiireellisyys, const string& kuvaus);
+    bool poista_tehtava();
     void listaa_tehtavat() const;
     bool talleta_tiedostoon(ofstream& virta) const;
 
