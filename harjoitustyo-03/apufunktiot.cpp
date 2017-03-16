@@ -17,17 +17,14 @@ void virheilmoitus(const string& teksti) {
 
 
 vector<string> paloittele_sanoiksi(const string& teksti) {
-    // Paloittelee tekstin sanoiksi ja tallentaa sanat säiliöön.
-    // return vector<string> tulos: vektori, johon sanat on tallennettu.
+
+    istringstream virta(teksti);
+    string sana;
+    vector<string> tulos = { };
 
 
-    istringstream virta(teksti);    // merkkijono merkkijonovirraksi.
-    string sana;                    // muuttuja yksittäistä sanaa varten.
-    vector<string> tulos = { };     // vektori sanojen tallentamiseen.
-
-
-    while ( virta >> sana ) {       // >> operaattori poimii virrasta
-        tulos.push_back(sana);      // välilyönnin erottaman sanan.
+    while ( virta >> sana ) {
+        tulos.push_back(sana);
     }
 
     return tulos;

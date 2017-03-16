@@ -35,6 +35,8 @@ bool Todo::lisaa_tehtava(int kiireellisyys, const string& kuvaus) {
     return true;
 }
 
+// ----- Tehtavan poistaminen todo-listalta ------------------------------
+
 bool Todo::poista_tehtava(){
     if ( todo.size() == 0 ){
         return false;
@@ -44,14 +46,13 @@ bool Todo::poista_tehtava(){
 
                 cout << "Suoritusvuorossa: " << todo.at(i).front() << endl;
                 todo.at(i).pop_front();
+
                 if ( todo.at(i).size() == 0 ){
                     todo.erase(i);
                 }
                 return true;
         }
-
     }
-
     return true;
 
     }

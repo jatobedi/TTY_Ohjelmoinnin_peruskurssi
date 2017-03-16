@@ -33,9 +33,6 @@ const Kaskyrakenne TUNNETUT_KASKYT = {
 
 
 void kayttoliittyma(Todo& tehtavarakenne) {
-    // rekursiivisesti toimiva käyttöliittymä.
-    // rekursio loppuu, jos syötetään lopeta, loppu tai
-    // ei syötetä mitään.
 
     cout << "tehtavalista> ";
     string rivi;
@@ -51,22 +48,17 @@ void kayttoliittyma(Todo& tehtavarakenne) {
 
         return;
 
-    // virheellinen syöte.
     } else if ( TUNNETUT_KASKYT.find(kentat.at(0)) == TUNNETUT_KASKYT.end()) {
         virheilmoitus(kentat.at(0) + " on tuntematon kasky.");
         kayttoliittyma(tehtavarakenne);
 
     } else {
 
-        // Sulkeet heti perässä suorittavat löytyvän funktion.
         TUNNETUT_KASKYT.at(kentat.at(0))(tehtavarakenne, kentat);
         kayttoliittyma(tehtavarakenne);
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// parametri Todo tehtavat kierrätetään käyttöliittymän kautta ja
-// vector<string> kentat tulee käyttöliittymästä.
 
 void suorita_listaa(Todo& tehtavat, const vector<string>& kentat) {
     if ( kentat.size() != 1 ) {
@@ -74,7 +66,7 @@ void suorita_listaa(Todo& tehtavat, const vector<string>& kentat) {
 
     } else {
 
-        tehtavat.listaa_tehtavat(); // todo_rakenne.
+        tehtavat.listaa_tehtavat();
     }
 }
 
@@ -92,9 +84,9 @@ void suorita_lisaa(Todo& tehtavat, const vector<string>& kentat) {
         return;
     }
 
-    string kuvaus = yhdista_valilyonneilla(kentat.begin() + 2, kentat.end()); // apufunktiot.
+    string kuvaus = yhdista_valilyonneilla(kentat.begin() + 2, kentat.end());
 
-    if ( not tehtavat.lisaa_tehtava(taso, kuvaus) ) {   // todo_rakenne.
+    if ( not tehtavat.lisaa_tehtava(taso, kuvaus) ) {
 
         virheilmoitus("lisaa: sopimaton kiireellisyystaso.");
     }
@@ -119,6 +111,10 @@ void suorita_talleta(Todo& tehtavat, const vector<string>& kentat) {
 }
 
 void suorita_suorita(Todo& tehtavat, const vector<string>& kentat){
+    // Tulostaa tehtävälistalta seuraavan tehtävän ja poistaa sen listalta.
+    // Todo tehtavat: tiedostorakenne, joka sisältää tehtävät.
+    // vector<string> kentat: tiedostorakenne, joka sisältää käyttäjän käskyn.
+
     if ( kentat.size() != 1 ){
         cout << "Virhe: vaara maara sanoja syoterivilla." << endl;
     }

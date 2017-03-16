@@ -30,31 +30,29 @@ using namespace std;
 // ET SIIS SAA MUUTTAA LUE_TEHTAVATIEDOSTO-FUNKTION RAJAPINTAA.
 // ----------------------------------------------------------------------------
 bool lue_tehtavatiedosto(ifstream& virta, Todo& tehtavarakenne) {
+    // Lukee tehtävätiedoston ja tallentaa sen sisällön tietorakenteeseen.
+    // ifstream virta: tiedoston tietovirta.
+    // Todo tehtavarakenne: tietorakenne, johon tietovirran tieto tallennetaan.
+    // return virheetön: jos tiedoston tiedot ovat virheettömät palautetaan true,
+    // muuten palautetaan false.
+
     bool virheeton = true;
     lue_rivi(virta, tehtavarakenne, virheeton);
     return virheeton;
 }
 
-string::size_type laskuri(string& rivi, string::iterator iter){
+bool tarkista_kentat(const int& kiireellisyys,  const string& kaskykentta){
+    // Tarkistaa, että tiedostosta luetun rivin arvot ovat sallittuja.
+    // int kiireellisyys: numeroarvoinen kenttä, jonka arvon on oltava välillä 1-5.
+    // string kaskykentta: käskykenttä, joka ei saa olla tyhjä tai koostua välilyönneistä.
+    // return: jos kentät ovat ehtojen mukaisia palautetaan true, muuten false.
 
-    if (iter != rivi.end()) {
-        if (*iter == ' '){
-            return 1 + laskuri(rivi, iter+1);
-        }
-    }
-    return 0;
-}
-
-bool tarkista_kentta(string& rivi){
-    if (rivi.length()==0){
+    if ( kaskykentta.length()==0 or kiireellisyys < 1 or kiireellisyys > 5){
         return false;
     }
-    string::iterator iter = rivi.begin();
-    string::size_type tyhjat = 0;
-    tyhjat = laskuri(rivi, iter);
 
-    if (rivi.length() == tyhjat){
-
+    else if ( kaskykentta.find_first_not_of(' ') == string::npos )
+    {
         return false;
     }else{
         return true;
@@ -62,11 +60,17 @@ bool tarkista_kentta(string& rivi){
 }
 
 void lue_rivi(ifstream& virta, Todo& tehtavarakenne, bool& virheeton){
+    // Lukee rekursiivisesti kaikki tietovirran rivit.
+    // ifstream virta: luettava tietovirta.
+    // Todo tehtavarakenne: tietorakenne, johon virran tiedot tallennetaan.
+    // bool virheeton: jos virran tiedot ovat virheettömiä palautetaan true,
+    // muuten palautetaan false.
+
     string rivi;
-    string kentta_1;
-    string::size_type pilkun_paikka;
-    int k_taso = 0;
-    string tehtava;
+    string numerokentta;
+    int kiireellisyys = 0;
+    string::size_type pilkun_paikka = 0;
+    string tehtavakentta;
     if ( getline(virta, rivi) ){
         pilkun_paikka = rivi.find(";");
 
@@ -74,14 +78,14 @@ void lue_rivi(ifstream& virta, Todo& tehtavarakenne, bool& virheeton){
             virheeton = false;
 
         }else{
-            kentta_1 = rivi.substr(0,pilkun_paikka);
-            virheeton = muuta_string_intiksi(kentta_1, k_taso);
+            numerokentta = rivi.substr(0,pilkun_paikka);
+            muuta_string_intiksi(numerokentta, kiireellisyys);
+            tehtavakentta = rivi.substr(pilkun_paikka+1);
 
-            tehtava = rivi.substr(pilkun_paikka+1);
-            virheeton = tarkista_kentta(tehtava);
-            virheeton = tehtavarakenne.lisaa_tehtava(k_taso, tehtava);
+            virheeton = tarkista_kentat(kiireellisyys, tehtavakentta);
 
             if ( virheeton ){
+                tehtavarakenne.lisaa_tehtava(kiireellisyys, tehtavakentta);
                 lue_rivi(virta, tehtavarakenne, virheeton);
 
             }
