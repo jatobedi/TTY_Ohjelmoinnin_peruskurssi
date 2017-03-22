@@ -21,7 +21,16 @@ class Pino {
         // poistettua arvo, paluuarvo on true.
         bool pop_front(int& poistettu_arvo);
 
+        void tulosta() const;
+
       private:
+        struct Pinon_alkio {
+            int kokonaisluku;
+            Pinon_alkio* seuraavan_osoite;
+        };
+
+        Pinon_alkio* ensimmaisen_osoite_;
+        Pinon_alkio* viimeisen_osoite_;
 
     };
 
