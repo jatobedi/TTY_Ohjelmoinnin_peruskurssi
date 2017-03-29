@@ -66,6 +66,39 @@ bool Lista::poista_alkio_alusta(string &poistettu_tehtava) {
     return true;
 }
 
+bool Lista::poista_alkio(string poistettava, string& poistettu_tehtava){
+    if ( onko_tyhja() ) {
+        return false;
+    }
+
+    Listan_alkio* poistettavan_osoite = ensimmaisen_osoite_;
+
+
+
+    while ( poistettavan_osoite != nullptr ) {
+        poistettu_tehtava = poistettavan_osoite->tehtava;
+
+        if (poistettu_tehtava == poistettava ){
+            if ( ensimmaisen_osoite_ == viimeisen_osoite_ ) {
+                ensimmaisen_osoite_ = nullptr;
+                viimeisen_osoite_ = nullptr;
+            } else {
+                ensimmaisen_osoite_ = ensimmaisen_osoite_->seuraavan_osoite;
+            }
+
+            delete poistettavan_osoite;
+            return true;
+
+        } else {
+            ensimmaisen_osoite_ = ensimmaisen_osoite_->seuraavan_osoite;
+        }
+    }
+
+
+    return false;
+
+}
+
 bool Lista::onko_tyhja() const {
     if ( ensimmaisen_osoite_ == nullptr ) {
         return true;

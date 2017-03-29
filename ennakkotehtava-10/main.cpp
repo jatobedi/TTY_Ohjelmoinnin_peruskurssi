@@ -23,11 +23,11 @@ int main() {
     cout << "Tekemattomat askareet:" << endl;
     tyolista.tulosta();
 
-    tyolista.poista_alkio_alusta(poistettu);
+    tyolista.poista_alkio("pese pyykit", poistettu);
     cout << " suoritettu: " << poistettu << endl;
 
-    tyolista.lisaa_alkio_loppuun("tiskaa");
-    tyolista.lisaa_alkio_loppuun("vie roskat");
+    //tyolista.lisaa_alkio_loppuun("tiskaa");
+    //tyolista.lisaa_alkio_loppuun("vie roskat");
 
     cout << endl << "Tekemattomat askareet:" << endl;
     tyolista.tulosta();

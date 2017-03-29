@@ -12,6 +12,7 @@ class Lista {
 
         void lisaa_alkio_loppuun(const string& lisattava_tehtava);
         bool poista_alkio_alusta(string& poistettu_tehtava);
+        bool poista_alkio(string poistettava, string& poistettu_tehtava);
         bool onko_tyhja() const;
         void tulosta() const;
 
