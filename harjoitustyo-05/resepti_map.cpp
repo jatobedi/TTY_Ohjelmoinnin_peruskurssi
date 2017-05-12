@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
-#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,8 +14,12 @@ Resepti_map::Resepti_map():
 {
 
 }
+
 bool Resepti_map::loytyyko_esine(const string& etsittava) {
-    shared_ptr<Esine_alkio> iteraattori{ensimmainen_esine_};
+    // Käy reseptin esinestructit läpi hakien etsittävää esinettä.
+    // Paluuarvo: löytyneestä true, muuten false.
+
+    shared_ptr<Esine_alkio> iteraattori = ensimmainen_esine_;
     while ( iteraattori != nullptr ) {
         if ( ensimmainen_esine_->esine == etsittava ){
             return true;
@@ -26,7 +30,7 @@ bool Resepti_map::loytyyko_esine(const string& etsittava) {
 
 }
 
-bool Resepti_map::lisaa_esine(const string& esineen_nimi) {
+bool Resepti_map::lisaa_esine(string esineen_nimi) {
 
     if ( loytyyko_esine(esineen_nimi) ) {
         return false;
@@ -62,7 +66,7 @@ bool Resepti_map::lisaa_materiaali(string esineen_nimi, string materiaalin_nimi)
 
 
     // haetaan esineen osoite.
-    shared_ptr<Esine_alkio> esineen_os{ensimmainen_esine_};
+    shared_ptr<Esine_alkio> esineen_os = ensimmainen_esine_;
     while ( esineen_os != nullptr ) {
         if ( esineen_os->esine == esineen_nimi ){
             break;
@@ -72,7 +76,7 @@ bool Resepti_map::lisaa_materiaali(string esineen_nimi, string materiaalin_nimi)
 
 
 
-    shared_ptr<Materiaali_alkio> iteraattori{esineen_os->eka_materiaali};
+    shared_ptr<Materiaali_alkio> iteraattori = esineen_os->eka_materiaali;
 
     // tarkistetaan onko materiaali jo lisätty.
     while (iteraattori != nullptr){
@@ -101,7 +105,7 @@ bool Resepti_map::lisaa_materiaali(string esineen_nimi, string materiaalin_nimi)
 }
 
 void Resepti_map::tulosta(){
-    shared_ptr<Esine_alkio> iteraattori{ensimmainen_esine_};
+    shared_ptr<Esine_alkio> iteraattori = ensimmainen_esine_;
     while ( iteraattori != nullptr ) {
         cout << iteraattori->esine << endl;
         iteraattori = iteraattori->seuraava_esine;
@@ -109,7 +113,9 @@ void Resepti_map::tulosta(){
 }
 
 void Resepti_map::tulosta_materiaalit(string esine){
-    shared_ptr<Esine_alkio> esineen_os{ensimmainen_esine_};
+
+    // Etsitään esine resepteistä.
+    shared_ptr<Esine_alkio> esineen_os = ensimmainen_esine_;
     while ( esineen_os != nullptr ) {
         if ( esineen_os->esine == esine ){
             break;
@@ -118,11 +124,33 @@ void Resepti_map::tulosta_materiaalit(string esine){
     }
     if ( esineen_os == nullptr ){
         return;
-    } else {
-        shared_ptr<Materiaali_alkio> iteraattori{esineen_os->eka_materiaali};
-        while (iteraattori != nullptr ){
-            cout << iteraattori->materiaali << endl;
+    }
+
+
+    // Syötetään esineen materiaalit taulukkoon.
+    else {
+        int materiaalien_maara = esineen_os->mat_lkm;
+        shared_ptr<Materiaali_alkio> iteraattori = esineen_os->eka_materiaali;
+        string* taulukko = new string[materiaalien_maara];
+        int laskuri = 0;
+
+        while ( iteraattori != nullptr ){
+            taulukko[laskuri] = iteraattori->materiaali;
             iteraattori = iteraattori->seuraava_mat;
+            ++laskuri;
         }
+
+        // Järjestetään taulukko.
+        sort(taulukko, taulukko + materiaalien_maara);
+
+        // Tulostetaan taulukon tiedot.
+        laskuri = 0;
+        while (laskuri < materiaalien_maara){
+            cout << taulukko[laskuri] << endl;
+            ++laskuri;
+        }
+
+        // Poistetaan taulukko.
+        delete [] taulukko;
     }
 }

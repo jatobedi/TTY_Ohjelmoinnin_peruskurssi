@@ -6,8 +6,10 @@ CONFIG += C++11
 
 SOURCES += main.cpp \
     kayttoliittyma.cpp \
-    resepti_map.cpp
+    resepti_map.cpp \
+    reppu.cpp
 
 HEADERS += \
     kayttoliittyma.hh \
-    resepti_map.hh
+    resepti_map.hh \
+    reppu.hh
