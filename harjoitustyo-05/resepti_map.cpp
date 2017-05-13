@@ -8,114 +8,88 @@
 using namespace std;
 
 Resepti_map::Resepti_map():
-    ensimmainen_esine_{nullptr},
-    viimeinen_esine_{nullptr},
-    lkm_{0}
+    eka_esine_{nullptr},
+    vika_esine_{nullptr}
 {
 
 }
 
-bool Resepti_map::loytyyko_esine(const string& etsittava) {
-    // Käy reseptin esinestructit läpi hakien etsittävää esinettä.
-    // Paluuarvo: löytyneestä true, muuten false.
+bool Resepti_map::lisaa(string esineen_nimi, string materiaalin_nimi){
+    // Lisää esineen ja siihen liittyviä materiaaleja reseptiin.
+    // Palauttaa onnistuneesta lisäyksestä true, muuten false.
 
-    shared_ptr<Esine_alkio> iteraattori = ensimmainen_esine_;
-    while ( iteraattori != nullptr ) {
-        if ( ensimmainen_esine_->esine == etsittava ){
+    shared_ptr<Esine_alkio> uuden_osoite(new Esine_alkio{esineen_nimi, nullptr,nullptr,nullptr,0});
+
+
+    if ( onko_esineet_tyhja() ){
+        eka_esine_ = uuden_osoite;
+        vika_esine_ = uuden_osoite;
+        lisaa(esineen_nimi, materiaalin_nimi);
+        return true;
+    }
+    else if ( loytyyko_esine(esineen_nimi) ){
+
+        // Haetaan esineen osoite.
+        shared_ptr<Esine_alkio> esineen_osoite = eka_esine_;
+        while (esineen_osoite != nullptr) {
+            if ( esineen_osoite->esine == esineen_nimi ){
+
+                // Lisätään materiaali listaan.
+                shared_ptr<Materiaali_alkio> uuden_mat_osoite(new Materiaali_alkio{materiaalin_nimi, nullptr});
+                if ( onko_materiaalit_tyhja(esineen_osoite->esine) ){
+                    esineen_osoite->eka_materiaali = uuden_mat_osoite;
+                    esineen_osoite->vika_materiaali = uuden_mat_osoite;
+                } else {
+                    esineen_osoite->vika_materiaali->seuraava_mat = uuden_mat_osoite;
+                    esineen_osoite->vika_materiaali = uuden_mat_osoite;
+                }
+            }
+        }
+        ++esineen_osoite->mat_lkm;
+        return true;
+    } else {
+        vika_esine_->seuraava_esine = uuden_osoite;
+        vika_esine_ = uuden_osoite;
+        lisaa(esineen_nimi, materiaalin_nimi);
+        return true;
+    }
+}
+
+bool Resepti_map::loytyyko_esine(const string& etsittava) const {
+    // etsii esinettä resepteistä.
+    // palauttaa: true jos löytyy, muuten false.
+
+    shared_ptr<Esine_alkio> iteraattori = eka_esine_;
+    while (iteraattori != nullptr) {
+        if ( iteraattori->esine == etsittava ){
             return true;
         }
-        iteraattori = iteraattori->seuraava_esine;
     }
     return false;
+}
+
+bool Resepti_map::loytyyko_materiaali(const string& etsittava) const{
+    // käy materiaalilistan läpi.
+    // apu_osoite_esine on osoitettava esineeseen, jonka materiaalit
+    // käydään läpi.
+
 
 }
 
-bool Resepti_map::lisaa_esine(string esineen_nimi) {
-
-    if ( loytyyko_esine(esineen_nimi) ) {
-        return false;
-    }
-
-    shared_ptr<Esine_alkio> uuden_osoite{new Esine_alkio};
-    uuden_osoite->esine = esineen_nimi;
-    uuden_osoite->eka_materiaali = nullptr;
-    uuden_osoite->vika_materiaali = nullptr;
-    uuden_osoite->seuraava_esine = nullptr;
-
-    // ensimmäinen listalla
-    if ( lkm_ == 0 ){
-        uuden_osoite->edellinen_esine = nullptr;
-        ensimmainen_esine_ = uuden_osoite;
-
-    } else {
-        uuden_osoite->edellinen_esine = viimeinen_esine_;
-        viimeinen_esine_->seuraava_esine = uuden_osoite;
-    }
-
-    viimeinen_esine_ = uuden_osoite.get();
-    ++lkm_;
-
-    return true;
-
-}
-
-bool Resepti_map::lisaa_materiaali(string esineen_nimi, string materiaalin_nimi){
-    // tarkistetaan ensin onko esine jo olemassa,
-    // ja lisätään se jos, se puuttuu.
-    lisaa_esine(esineen_nimi);
 
 
-    // haetaan esineen osoite.
-    shared_ptr<Esine_alkio> esineen_os = ensimmainen_esine_;
-    while ( esineen_os != nullptr ) {
-        if ( esineen_os->esine == esineen_nimi ){
-            break;
-        }
-        esineen_os = esineen_os->seuraava_esine;
-    }
-
-
-
-    shared_ptr<Materiaali_alkio> iteraattori = esineen_os->eka_materiaali;
-
-    // tarkistetaan onko materiaali jo lisätty.
-    while (iteraattori != nullptr){
-        if ( iteraattori->materiaali == materiaalin_nimi ){
-            return false;
-        }
-        iteraattori = iteraattori->seuraava_mat;
-    }
-
-    shared_ptr<Materiaali_alkio> uuden_osoite{new Materiaali_alkio};
-    uuden_osoite->materiaali = materiaalin_nimi;
-    uuden_osoite->seuraava_mat = nullptr;
-
-    // Esnimmäiselle materiaalille.
-    if ( esineen_os->mat_lkm == 0 ){
-        esineen_os->eka_materiaali = uuden_osoite;
-    }
-    // Muille materiaaleille.
-    else {
-        esineen_os->vika_materiaali->seuraava_mat = uuden_osoite;
-    }
-
-    esineen_os->vika_materiaali = uuden_osoite.get();
-    ++esineen_os->mat_lkm;
-    return true;
-}
-
-void Resepti_map::tulosta(){
-    shared_ptr<Esine_alkio> iteraattori = ensimmainen_esine_;
+void Resepti_map::tulosta_esineet()const{
+    shared_ptr<Esine_alkio> iteraattori = eka_esine_;
     while ( iteraattori != nullptr ) {
         cout << iteraattori->esine << endl;
         iteraattori = iteraattori->seuraava_esine;
     }
 }
 
-void Resepti_map::tulosta_materiaalit(string esine){
+void Resepti_map::tulosta_materiaalit(const string &esine) const{
 
     // Etsitään esine resepteistä.
-    shared_ptr<Esine_alkio> esineen_os = ensimmainen_esine_;
+    shared_ptr<Esine_alkio> esineen_os = eka_esine_;
     while ( esineen_os != nullptr ) {
         if ( esineen_os->esine == esine ){
             break;
@@ -153,4 +127,21 @@ void Resepti_map::tulosta_materiaalit(string esine){
         // Poistetaan taulukko.
         delete [] taulukko;
     }
+}
+
+bool Resepti_map::onko_esineet_tyhja()const{
+    if  ( eka_esine_ == nullptr ){
+        return true;
+    } else {
+        return false;
+    }
+}
+bool Resepti_map::onko_materiaalit_tyhja(const string& esine)const{
+    shared_ptr<Esine_alkio> esineen_osoite = eka_esine_;
+    while ( esineen_osoite != nullptr ){
+        if ( (esineen_osoite->esine == esine) and (esineen_osoite->eka_materiaali == nullptr) ){
+            return false;
+        }
+    }
+    return true;
 }

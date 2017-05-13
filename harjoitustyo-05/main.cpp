@@ -14,16 +14,17 @@ using namespace std;
 
 int main()
 {
+
     Resepti_map reseptit;
-    reseptit.lisaa_materiaali("hiilta", "puuta");
-    reseptit.lisaa_materiaali("rautaharkkoja", "rautamalmia");
-    reseptit.lisaa_materiaali("lautaa", "puuta");
-    reseptit.lisaa_materiaali("rautalapio", "lapionvarsi");
-    reseptit.lisaa_materiaali("rautalapio", "lautaa");
-    reseptit.lisaa_materiaali("rautalapio", "rautaharkkoja");
-    reseptit.lisaa_materiaali("rautaharkkoja", "hiilta");
-    reseptit.lisaa_materiaali("lapionvarsi", "lautaa");
-    reseptit.tulosta();
+    reseptit.lisaa("hiilta", "puuta");
+    /*reseptit.lisaa("rautaharkkoja", "rautamalmia");
+    reseptit.lisaa("lautaa", "puuta");
+    reseptit.lisaa("rautalapio", "lapionvarsi");
+    reseptit.lisaa("rautalapio", "lautaa");
+    reseptit.lisaa("rautalapio", "rautaharkkoja");
+    reseptit.lisaa("rautaharkkoja", "hiilta");
+    reseptit.lisaa("lapionvarsi", "lautaa");*/
+    reseptit.tulosta_esineet();
     //reseptit.tulosta_materiaalit("Rautaharkkoja");
 
     Reppu reppu(reseptit);
