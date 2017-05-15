@@ -8,140 +8,130 @@
 using namespace std;
 
 Resepti_map::Resepti_map():
-    eka_esine_{nullptr},
-    vika_esine_{nullptr}
+    reseptit_{nullptr},
+    viimeinen_resepti_{nullptr}
 {
 
 }
 
-bool Resepti_map::lisaa(string esineen_nimi, string materiaalin_nimi){
-    // Lisää esineen ja siihen liittyviä materiaaleja reseptiin.
-    // Palauttaa onnistuneesta lisäyksestä true, muuten false.
-
-    shared_ptr<Esine_alkio> uuden_osoite(new Esine_alkio{esineen_nimi, nullptr,nullptr,nullptr,0});
-
-
-    if ( onko_esineet_tyhja() ){
-        eka_esine_ = uuden_osoite;
-        vika_esine_ = uuden_osoite;
-        lisaa(esineen_nimi, materiaalin_nimi);
-        return true;
-    }
-    else if ( loytyyko_esine(esineen_nimi) ){
-
-        // Haetaan esineen osoite.
-        shared_ptr<Esine_alkio> esineen_osoite = eka_esine_;
-        while (esineen_osoite != nullptr) {
-            if ( esineen_osoite->esine == esineen_nimi ){
-
-                // Lisätään materiaali listaan.
-                shared_ptr<Materiaali_alkio> uuden_mat_osoite(new Materiaali_alkio{materiaalin_nimi, nullptr});
-                if ( onko_materiaalit_tyhja(esineen_osoite->esine) ){
-                    esineen_osoite->eka_materiaali = uuden_mat_osoite;
-                    esineen_osoite->vika_materiaali = uuden_mat_osoite;
-                } else {
-                    esineen_osoite->vika_materiaali->seuraava_mat = uuden_mat_osoite;
-                    esineen_osoite->vika_materiaali = uuden_mat_osoite;
-                }
-            }
-        }
-        ++esineen_osoite->mat_lkm;
-        return true;
+void Resepti_map::lisaa_alkio(const string& lisattava_esine, const string& lisattava_materiaali){
+    if ( loytyyko_esine_resepteista(lisattava_esine) ){
+        lisaa_materiaali(lisattava_esine, lisattava_materiaali);
     } else {
-        vika_esine_->seuraava_esine = uuden_osoite;
-        vika_esine_ = uuden_osoite;
-        lisaa(esineen_nimi, materiaalin_nimi);
-        return true;
+        lisaa_esine(lisattava_esine);
+        lisaa_materiaali(lisattava_esine, lisattava_materiaali);
     }
 }
 
-bool Resepti_map::loytyyko_esine(const string& etsittava) const {
-    // etsii esinettä resepteistä.
-    // palauttaa: true jos löytyy, muuten false.
+void Resepti_map::lisaa_esine(const string& lisattava_esine){
+    shared_ptr<R_alk> uuden_osoite(new R_alk{lisattava_esine, nullptr, 0, nullptr});
+    if ( onko_reseptit_tyhja() ){
+        reseptit_ = uuden_osoite;
+        viimeinen_resepti_ = uuden_osoite;
+    } else {
+        viimeinen_resepti_->seuraava_esine = uuden_osoite;
+        viimeinen_resepti_ = uuden_osoite;
+    }
+}
 
-    shared_ptr<Esine_alkio> iteraattori = eka_esine_;
-    while (iteraattori != nullptr) {
-        if ( iteraattori->esine == etsittava ){
-            return true;
+void Resepti_map::lisaa_materiaali(const string& haettava_esine, const string& lisattava_materiaali){
+    // Haetaan esine resepteistä, että voidaan tarkistaa, onko siinä materiaaleja.
+    R_alk* haettavan_osoite = reseptit_.get();
+    while ( haettavan_osoite != nullptr ) {
+        if ( haettavan_osoite->esine == haettava_esine)
+            lisaa_taulukkoon(haettavan_osoite, lisattava_materiaali);
+        haettavan_osoite = haettavan_osoite->seuraava_esine.get();
+    }
+}
+
+void Resepti_map::lisaa_taulukkoon(R_alk* esineen_osoite, const string& lisattava_materiaali){
+    int vanha_taulukon_koko = esineen_osoite->mat_lkm;
+    int uusi_taulukon_koko = vanha_taulukon_koko + 1;
+
+    if ( onko_materiaalit_tyhja(esineen_osoite) ){
+        string* uusi_taulukko = new string[1];
+        uusi_taulukko[0] = lisattava_materiaali;
+        esineen_osoite->materiaalit = uusi_taulukko;
+    } else {
+        string* uusi_taulukko = new string[uusi_taulukon_koko];
+        string* vanha_taulukko = esineen_osoite->materiaalit;
+        for (int i = 0; i < vanha_taulukon_koko; ++i){
+            uusi_taulukko[i] = vanha_taulukko[i];
         }
+        uusi_taulukko[vanha_taulukon_koko] = lisattava_materiaali;
+        esineen_osoite->materiaalit = uusi_taulukko;
+        delete [] vanha_taulukko;
+    }
+    esineen_osoite->mat_lkm = uusi_taulukon_koko;
+}
+
+void Resepti_map::tulosta_esineet(){
+    R_alk* tulostettavan_osoite = reseptit_.get();
+    while (tulostettavan_osoite != nullptr) {
+        cout << tulostettavan_osoite->esine << endl;
+        tulostettavan_osoite = tulostettavan_osoite->seuraava_esine.get();
+    }
+}
+
+void Resepti_map::tulosta_materiaalit(const string& etsittava_esine){
+    R_alk* etsittavan_osoite = reseptit_.get();
+    while ( etsittavan_osoite != nullptr ) {
+        if ( etsittavan_osoite->esine == etsittava_esine){
+            string* taulukon_osoite = etsittavan_osoite->materiaalit;
+            int taulukon_koko = etsittavan_osoite->mat_lkm;
+
+            sort(taulukon_osoite, taulukon_osoite + taulukon_koko);
+
+            for (int i = 0; i < taulukon_koko; ++i){
+                cout << taulukon_osoite[i] << endl;
+            }
+        }
+        etsittavan_osoite = etsittavan_osoite->seuraava_esine.get();
+    }
+}
+
+bool Resepti_map::onko_reseptit_tyhja(){
+    if ( reseptit_ == nullptr ){
+        return true;
+    } else {
+        return false;
+        }
+}
+
+bool Resepti_map::onko_materiaalit_tyhja(R_alk* esineen_osoite){
+    if ( esineen_osoite->materiaalit == nullptr ){
+        return true;
+    } else {
+        return false;
+        }
+}
+
+bool Resepti_map::loytyyko_esine_resepteista(const string& etsittava_esine){
+    R_alk* etsittavan_osoite = reseptit_.get();
+    while ( etsittavan_osoite != nullptr ) {
+        if ( etsittavan_osoite->esine == etsittava_esine)
+            return true;
+        etsittavan_osoite = etsittavan_osoite->seuraava_esine.get();
     }
     return false;
 }
 
-bool Resepti_map::loytyyko_materiaali(const string& etsittava) const{
-    // käy materiaalilistan läpi.
-    // apu_osoite_esine on osoitettava esineeseen, jonka materiaalit
-    // käydään läpi.
+bool Resepti_map::loytyyko_materiaali_esineesta(const string& etsittava_esine, const string& etsittava_materiaali){
+    // Haetaan esine resepteistä, että voidaan tarkistaa, onko siinä materiaaleja.
+    R_alk* etsittavan_osoite = reseptit_.get();
+    while ( etsittavan_osoite != nullptr ) {
+        if ( etsittavan_osoite->esine == etsittava_esine){
 
-
-}
-
-
-
-void Resepti_map::tulosta_esineet()const{
-    shared_ptr<Esine_alkio> iteraattori = eka_esine_;
-    while ( iteraattori != nullptr ) {
-        cout << iteraattori->esine << endl;
-        iteraattori = iteraattori->seuraava_esine;
-    }
-}
-
-void Resepti_map::tulosta_materiaalit(const string &esine) const{
-
-    // Etsitään esine resepteistä.
-    shared_ptr<Esine_alkio> esineen_os = eka_esine_;
-    while ( esineen_os != nullptr ) {
-        if ( esineen_os->esine == esine ){
-            break;
+            // Verrataan jokaista taulukon esinettä etsittävään.
+            int taulukon_koko = etsittavan_osoite->mat_lkm;
+            string* materiaalin_osoite = etsittavan_osoite->materiaalit;
+            for (int i = 0; i < taulukon_koko; ++i){
+                if ( materiaalin_osoite[i] == etsittava_materiaali ){
+                    return true;
+                }
+            }
         }
-        esineen_os = esineen_os->seuraava_esine;
+        etsittavan_osoite = etsittavan_osoite->seuraava_esine.get();
     }
-    if ( esineen_os == nullptr ){
-        return;
-    }
-
-
-    // Syötetään esineen materiaalit taulukkoon.
-    else {
-        int materiaalien_maara = esineen_os->mat_lkm;
-        shared_ptr<Materiaali_alkio> iteraattori = esineen_os->eka_materiaali;
-        string* taulukko = new string[materiaalien_maara];
-        int laskuri = 0;
-
-        while ( iteraattori != nullptr ){
-            taulukko[laskuri] = iteraattori->materiaali;
-            iteraattori = iteraattori->seuraava_mat;
-            ++laskuri;
-        }
-
-        // Järjestetään taulukko.
-        sort(taulukko, taulukko + materiaalien_maara);
-
-        // Tulostetaan taulukon tiedot.
-        laskuri = 0;
-        while (laskuri < materiaalien_maara){
-            cout << taulukko[laskuri] << endl;
-            ++laskuri;
-        }
-
-        // Poistetaan taulukko.
-        delete [] taulukko;
-    }
-}
-
-bool Resepti_map::onko_esineet_tyhja()const{
-    if  ( eka_esine_ == nullptr ){
-        return true;
-    } else {
-        return false;
-    }
-}
-bool Resepti_map::onko_materiaalit_tyhja(const string& esine)const{
-    shared_ptr<Esine_alkio> esineen_osoite = eka_esine_;
-    while ( esineen_osoite != nullptr ){
-        if ( (esineen_osoite->esine == esine) and (esineen_osoite->eka_materiaali == nullptr) ){
-            return false;
-        }
-    }
-    return true;
+    return false;
 }

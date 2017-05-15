@@ -23,8 +23,7 @@ private:
     };
 
     shared_ptr<Reppu_alkio> ensimmainen_tavara_;
-    Reppu_alkio* viimeinen_tavara_;
-    int lkm_;
+    shared_ptr<Reppu_alkio> viimeinen_tavara_;
     Resepti_map reseptit_;
 
     bool etsi_resepteista(const string& tavara);

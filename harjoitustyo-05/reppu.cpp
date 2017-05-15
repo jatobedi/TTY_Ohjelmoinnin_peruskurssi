@@ -9,7 +9,6 @@ using namespace std;
 
 Reppu::Reppu(Resepti_map reseptit): ensimmainen_tavara_{nullptr},
     viimeinen_tavara_{nullptr},
-    lkm_{0},
     reseptit_{reseptit}
 {
 
@@ -25,14 +24,15 @@ bool Reppu::lisaa_tavara(const string& tavaran_nimi){
         return false;
     }
 
-    shared_ptr<Reppu_alkio> uuden_osoite{new Reppu_alkio{tavaran_nimi, nullptr}};
+    shared_ptr<Reppu_alkio> uuden_osoite(
+                new Reppu_alkio{tavaran_nimi, nullptr});
 
 
     // ensimmäinen listalla
-    if ( lkm_ == 0 ){
+    if ( viimeinen_tavara_ == nullptr ){
         ensimmainen_tavara_ = uuden_osoite;
     }
-
+/*
     // Loput tavarat.
     else {
         // Laitetaan esimmäinen tavara osoittamaan toiseen.
@@ -43,11 +43,9 @@ bool Reppu::lisaa_tavara(const string& tavaran_nimi){
         viimeinen_tavara_->seuraava_tav = uuden_osoite;
     }
 
-    viimeinen_tavara_ = uuden_osoite.get();
-    ++lkm_;
-
+    viimeinen_tavara_ = uuden_osoite;
     return true;
-
+*/
     }
 
 bool Reppu::onko_askarreltavissa(const string& tuote){
@@ -59,7 +57,7 @@ bool Reppu::etsi_resepteista(const string& tavara){
     // Etsii tavaraa resepteistä.
     // Paluuarvo: true, jos löytyy, muuten false.
 
-    return reseptit_.loytyyko_esine(tavara);
+    //return reseptit_.loytyyko_esine(tavara);
 
 }
 
@@ -78,7 +76,6 @@ void Reppu::tyhjenna(){
 
     ensimmainen_tavara_ = nullptr;
     viimeinen_tavara_ = nullptr;
-    lkm_ = 0;
 }
 
 bool Reppu::etsi_repusta(const string& tavara){

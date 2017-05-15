@@ -8,33 +8,39 @@
 using namespace std;
 
 
+
 class Resepti_map
 {
+private:
+    // Reseptilistan alkio = R_alk.
+
+    struct R_alk {
+        string esine;
+        string* materiaalit; // taulukko
+        int mat_lkm;
+
+        shared_ptr<R_alk> seuraava_esine;
+    };
+
+    shared_ptr<R_alk> reseptit_;
+    shared_ptr<R_alk> viimeinen_resepti_;
+
+    void lisaa_esine(const string& esine);
+    void lisaa_materiaali(const string& esine, const string& lisattava_materiaali);
+    void lisaa_taulukkoon(R_alk* esineen_osoite, const string& lisattava_materiaali);
+    bool onko_reseptit_tyhja();
+    bool onko_materiaalit_tyhja(R_alk* esineen_osoite);
+
 public:
     Resepti_map();
-    bool lisaa(string esineen_nimi, string materiaalin_nimi);
-    void tulosta_esineet()const;
-    void tulosta_materiaalit(const string& esine)const;
-    bool loytyyko_esine(const string &etsittava)const;
-    bool loytyyko_materiaali(const string& etsittava)const;
-    bool onko_esineet_tyhja()const;
-    bool onko_materiaalit_tyhja(const string& esine)const;
-private:
-    struct Materiaali_alkio {
-        string materiaali;
-        shared_ptr<Materiaali_alkio> seuraava_mat;
-    };
 
-    struct Esine_alkio {
-        string esine;
-        shared_ptr<Esine_alkio> seuraava_esine;
-        shared_ptr<Materiaali_alkio> eka_materiaali;
-        shared_ptr<Materiaali_alkio> vika_materiaali;
-        int mat_lkm;
-    };
+    void lisaa_alkio(const string& lisattava_esine, const string& lisattava_materiaali);
+    bool loytyyko_esine_resepteista(const string& esine);
+    bool loytyyko_materiaali_esineesta(const string& etsittava_esine, const string& etsittava_materiaali);
+    void tulosta_esineet();
+    void tulosta_materiaalit(const string& etsittava_esine);
 
-    shared_ptr<Esine_alkio> eka_esine_;
-    shared_ptr<Esine_alkio> vika_esine_;
+
 };
 
 #endif // RESEPTI_MAP_HH
