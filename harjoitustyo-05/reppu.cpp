@@ -1,3 +1,10 @@
+// TIE-02200 Ohjelmoinnin peruskurssi
+// harjoitustyo-05
+// Janne Aare 235645
+// janne.aare@student.tut.fi
+// Reppu on tietosäiliö,
+// johon käyttäjä voi lisätä esineitä.
+
 #include "reppu.hh"
 #include "resepti_map.hh"
 
@@ -8,6 +15,9 @@
 using namespace std;
 
 Reppu::Reppu(Resepti_map reseptit): ensimmainen_tavara_{nullptr},
+    // Rakentaja.
+    // Resepti_map reseptit: Lähdetietorakenne.
+
     viimeinen_tavara_{nullptr},
     reseptit_{reseptit}
 {
@@ -16,10 +26,12 @@ Reppu::Reppu(Resepti_map reseptit): ensimmainen_tavara_{nullptr},
 
 bool Reppu::lisaa_tavara(const string& tavaran_nimi){
     // Lisää uuden tavaran dynaamisen listan viimeiseksi.
+    // const string& tavaran_nimi: Lisättävän tavaran nimi.
     // Paluuarvo: true onnistuneesta lisäyksestä, muuten false.
 
     if ( etsi_repusta(tavaran_nimi) or not etsi_resepteista(tavaran_nimi) ) {
         // Tavaran löytyessä repusta, reppu tyhjennetään.
+        lisaysvirheilmoitus();
         tyhjenna();
         return false;
     }
@@ -29,35 +41,55 @@ bool Reppu::lisaa_tavara(const string& tavaran_nimi){
 
 
     // ensimmäinen listalla
-    if ( viimeinen_tavara_ == nullptr ){
+    if ( onko_tyhja() ){
         ensimmainen_tavara_ = uuden_osoite;
+        viimeinen_tavara_ = uuden_osoite;
     }
-/*
+
     // Loput tavarat.
     else {
         // Laitetaan esimmäinen tavara osoittamaan toiseen.
-        if (ensimmainen_tavara_->seuraava_tav == nullptr){
-            ensimmainen_tavara_->seuraava_tav = uuden_osoite;
-        }
-
         viimeinen_tavara_->seuraava_tav = uuden_osoite;
+        viimeinen_tavara_ = uuden_osoite;
     }
-
-    viimeinen_tavara_ = uuden_osoite;
     return true;
-*/
-    }
+}
 
 bool Reppu::onko_askarreltavissa(const string& tuote){
-    cout << tuote << endl;
+    // Tarkistaa löytyykö repusta kysytyn tuotteen
+    // valmistamiseen tarvitut tavarat.
+    // const string& tuote: kysytty tuote.
+    // return: true, jos askarreltavissa, muuten false.
+
+    if ( onko_tyhja() ){
+        return false;
+    }
+    else if ( etsi_repusta(tuote) ){
+        return true;
+    } else {
+        string* materiaalit = reseptit_.esineen_materiaalitaulukko(tuote);
+        int taulukon_koko = reseptit_.esineen_materiaalimaara(tuote);
+
+        // Materiaalittomat tuotteet on löydyttävä repusta.
+        if ( taulukon_koko == 0 ){
+            return false;
+        }
+
+        for (int i = 0; i < taulukon_koko;++i){
+            if ( not etsi_repusta(materiaalit[i]) ){
+                return false;
+            }
+        }
+    }
     return true;
 }
 
 bool Reppu::etsi_resepteista(const string& tavara){
     // Etsii tavaraa resepteistä.
+    // const string& tavara: etsittävä tavara.
     // Paluuarvo: true, jos löytyy, muuten false.
 
-    //return reseptit_.loytyyko_esine(tavara);
+    return reseptit_.loytyyko_esine_resepteista(tavara);
 
 }
 
@@ -80,15 +112,35 @@ void Reppu::tyhjenna(){
 
 bool Reppu::etsi_repusta(const string& tavara){
     // Etsii repusta nimettyä tavaraa.
+    // const string& tavara: etsittävä tavara.
     // Paluuarvo: true, jos nimetty löytyy ja false, jos ei löydy.
 
-    shared_ptr<Reppu_alkio> iteraattori = ensimmainen_tavara_;
+    if ( onko_tyhja() ){
+        return false;
+    }
+
+    Reppu_alkio* iteraattori = ensimmainen_tavara_.get();
     while ( iteraattori != nullptr ) {
         if ( iteraattori->tavara == tavara ){
             return true;
         }
+        iteraattori = iteraattori->seuraava_tav.get();
     }
     return false;
 }
 
+bool Reppu::onko_tyhja()const{
+    // Tarkistaa onko reppu tyhjä.
+    // return: true, jos on, muuten false.
 
+    if ( ensimmainen_tavara_ == nullptr ){
+        return true;
+    } else {
+        return false;
+    }
+}
+void Reppu::lisaysvirheilmoitus(){
+    // tulostaa virheilmoitusen.
+
+    cout << "Virhe: tavaraa ei voi lisata reppuun." << endl;
+}

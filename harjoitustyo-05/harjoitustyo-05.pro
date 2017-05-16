@@ -17,5 +17,3 @@ HEADERS += \
     tiedostonluku.hh \
     vakiot.hh
 
-DISTFILES += \
-    syote.txt
